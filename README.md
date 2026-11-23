@@ -10,3 +10,5 @@ pytest -q
 ```
 
 Cycles require policy classification; a feedback loop is not automatically unsafe. See `M1296_SPEC.md`.
+
+Change trace: CHG-20261124-M36-001 (canonical record in 36OS-database).

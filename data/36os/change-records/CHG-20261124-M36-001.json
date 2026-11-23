@@ -1,7 +1,10 @@
 {
   "change_id": "CHG-20261124-M36-001",
   "summary": "Implement M1296 version 1.0.0 as an isolated, sparse and testable mathematical component of the M36 standard.",
-  "actor": "maziarkhaliliymcmb-hub",
+  "actor": {
+    "id": "maziarkhaliliymcmb-hub",
+    "type": "owner"
+  },
   "goal_ids": [
     "G-002",
     "G-009",
@@ -12,7 +15,9 @@
     "D-013",
     "D-014"
   ],
-  "touched_files": [],
+  "touched_files": [
+    "README.md"
+  ],
   "implementation_files": [
     "pyproject.toml",
     "m1296/__init__.py",
