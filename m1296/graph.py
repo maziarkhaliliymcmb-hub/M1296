@@ -81,22 +81,48 @@ class M1296Graph:
                     queue.append((edge.target, depth + 1))
         return tuple(result)
 
-    def cycles(self) -> tuple[tuple[int, ...], ...]:
-        """Return directed simple cycles, canonicalized to avoid duplicate rotations."""
+    def cyclic_components(self) -> tuple[tuple[int, ...], ...]:
+        """Return strongly connected components containing a directed cycle (Tarjan O(V+E))."""
         adjacency = {i: [e.target for e in self.outgoing(i)] for i in range(NODE_COUNT)}
-        found: set[tuple[int, ...]] = set()
-        for start in range(NODE_COUNT):
-            stack: list[tuple[int, list[int]]] = [(start, [start])]
-            while stack:
-                node, path = stack.pop()
-                for nxt in adjacency[node]:
-                    if nxt == start and len(path) > 1:
-                        cycle = path[:]
-                        rotations = [tuple(cycle[i:] + cycle[:i]) for i in range(len(cycle))]
-                        found.add(min(rotations))
-                    elif nxt > start and nxt not in path:
-                        stack.append((nxt, path + [nxt]))
-        return tuple(sorted(found))
+        index = 0
+        indices: dict[int, int] = {}
+        lowlink: dict[int, int] = {}
+        stack: list[int] = []
+        on_stack: set[int] = set()
+        components: list[tuple[int, ...]] = []
+
+        def visit(node: int) -> None:
+            nonlocal index
+            indices[node] = lowlink[node] = index
+            index += 1
+            stack.append(node)
+            on_stack.add(node)
+            for target in adjacency[node]:
+                if target not in indices:
+                    visit(target)
+                    lowlink[node] = min(lowlink[node], lowlink[target])
+                elif target in on_stack:
+                    lowlink[node] = min(lowlink[node], indices[target])
+            if lowlink[node] == indices[node]:
+                component: list[int] = []
+                while True:
+                    member = stack.pop()
+                    on_stack.remove(member)
+                    component.append(member)
+                    if member == node:
+                        break
+                component.sort()
+                if len(component) > 1 or node in adjacency[node]:
+                    components.append(tuple(component))
+
+        for node in range(NODE_COUNT):
+            if node not in indices:
+                visit(node)
+        return tuple(sorted(components))
+
+    def cycles(self) -> tuple[tuple[int, ...], ...]:
+        """Backward-compatible alias returning cyclic strongly connected components."""
+        return self.cyclic_components()
 
     def validate(self) -> None:
         if len(self._edges) > SLOT_COUNT:
