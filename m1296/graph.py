@@ -2,9 +2,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from collections import deque
+import math
 
 NODE_COUNT = 36
 SLOT_COUNT = NODE_COUNT * NODE_COUNT  # 1296
+
 
 class EdgeType(str, Enum):
     INFLUENCE = "influence"
@@ -13,6 +15,25 @@ class EdgeType(str, Enum):
     DEPENDENCY_FLOW = "dependency_flow"
     RESOURCE_FLOW = "resource_flow"
     FEEDBACK_FLOW = "feedback_flow"
+
+
+def _require_node(value: int, field: str) -> None:
+    if type(value) is not int or not 0 <= value < NODE_COUNT:
+        raise ValueError(f"{field} must be an integer in [0, 35]")
+
+
+def _require_finite_number(value: float, field: str, lower: float, upper: float) -> None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{field} must be a finite number")
+    try:
+        finite = math.isfinite(value)
+    except OverflowError:
+        finite = False
+    if not finite:
+        raise ValueError(f"{field} must be a finite number")
+    if not lower <= value <= upper:
+        raise ValueError(f"{field} must be between {lower} and {upper}")
+
 
 @dataclass(frozen=True)
 class Edge:
@@ -24,20 +45,25 @@ class Edge:
     active: bool = True
 
     def __post_init__(self):
-        if not (0 <= self.source < NODE_COUNT and 0 <= self.target < NODE_COUNT):
-            raise ValueError("node indices must be in [0, 35]")
-        if not (-1.0 <= self.weight <= 1.0):
-            raise ValueError("weight must be between -1 and 1")
-        if not (0.0 <= self.confidence <= 1.0):
-            raise ValueError("confidence must be between 0 and 1")
+        _require_node(self.source, "source")
+        _require_node(self.target, "target")
+        if not isinstance(self.edge_type, EdgeType):
+            raise ValueError("edge_type must be an EdgeType")
+        _require_finite_number(self.weight, "weight", -1.0, 1.0)
+        _require_finite_number(self.confidence, "confidence", 0.0, 1.0)
+        if type(self.active) is not bool:
+            raise ValueError("active must be a boolean")
+
 
 def edge_index(source: int, target: int) -> int:
-    if not (0 <= source < NODE_COUNT and 0 <= target < NODE_COUNT):
-        raise ValueError("node indices must be in [0, 35]")
+    _require_node(source, "source")
+    _require_node(target, "target")
     return source * NODE_COUNT + target
+
 
 class M1296Graph:
     """Sparse directed graph; reverse edges are independent and need not exist."""
+
     def __init__(self):
         self._edges: dict[int, Edge] = {}
 
@@ -50,6 +76,8 @@ class M1296Graph:
         return sum(1 for e in self._edges.values() if e.active)
 
     def set_edge(self, edge: Edge) -> None:
+        if not isinstance(edge, Edge):
+            raise TypeError("edge must be an Edge")
         self._edges[edge_index(edge.source, edge.target)] = edge
 
     def get_edge(self, source: int, target: int) -> Edge | None:
@@ -59,14 +87,16 @@ class M1296Graph:
         return self._edges.pop(edge_index(source, target), None) is not None
 
     def outgoing(self, source: int, active_only: bool = True) -> tuple[Edge, ...]:
-        if not 0 <= source < NODE_COUNT:
-            raise ValueError("source must be in [0, 35]")
+        _require_node(source, "source")
+        if type(active_only) is not bool:
+            raise ValueError("active_only must be a boolean")
         return tuple(e for e in self._edges.values() if e.source == source and (e.active or not active_only))
 
     def impacted_nodes(self, source: int, max_depth: int | None = None) -> tuple[int, ...]:
         """Return nodes reachable downstream, excluding the source itself."""
-        if not 0 <= source < NODE_COUNT:
-            raise ValueError("source must be in [0, 35]")
+        _require_node(source, "source")
+        if max_depth is not None and (type(max_depth) is not int or max_depth < 0):
+            raise ValueError("max_depth must be a non-negative integer or None")
         visited = {source}
         queue = deque([(source, 0)])
         result: list[int] = []
@@ -83,7 +113,7 @@ class M1296Graph:
 
     def cyclic_components(self) -> tuple[tuple[int, ...], ...]:
         """Return strongly connected components containing a directed cycle (Tarjan O(V+E))."""
-        adjacency = {i: [e.target for e in self.outgoing(i)] for i in range(NODE_COUNT)}
+        adjacency = {i: [e.target for e in self.outgoing(i) if e.active] for i in range(NODE_COUNT)}
         index = 0
         indices: dict[int, int] = {}
         lowlink: dict[int, int] = {}
@@ -128,5 +158,7 @@ class M1296Graph:
         if len(self._edges) > SLOT_COUNT:
             raise ValueError("M1296 capacity exceeded")
         for key, edge in self._edges.items():
+            if not isinstance(edge, Edge):
+                raise ValueError("graph contains a non-Edge value")
             if key != edge_index(edge.source, edge.target):
                 raise ValueError("edge stored at incorrect directed slot")
