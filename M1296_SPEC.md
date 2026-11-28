@@ -8,6 +8,10 @@ Weights and confidence are bounded metadata, not inferred truth. They must be po
 
 ## 36OS interoperability envelope
 
-When M1296 data is exposed through the 36OS genome registry contract, the registry response must include `root_genome_version`, equal to the exact `genome_version` of the M36-ROOT used to assign the 36 node indices. Consumers must reject a missing or mismatched root version. A matching node count or capacity alone does not establish genome lineage.
+When M1296 data is exposed through the 36OS genome registry contract, the registry response must include both:
+- `root_schema_version`, equal to the M36-ROOT `standard_version` used to parse and interpret the root structure. The currently supported value is `1.0.0`.
+- `root_genome_version`, equal to the exact M36-ROOT `genome_version` used to assign the 36 node indices.
 
-The M1296 standard version (1.0.0) and the pinned M36 root content version are independent version domains. Updating either requires its own compatibility assessment; neither implies a change to the other.
+Consumers must reject either missing or mismatched field. A matching node count or capacity alone does not establish schema compatibility or genome lineage.
+
+The M1296 standard version (1.0.0), M36 root schema version, and M36 root content version are independent version domains. Updating any one requires its own compatibility assessment; none implies a change to the others. M1296's graph data model does not itself interpret or migrate M36 schemas; the 36OS registry boundary and M666 consumer validator enforce the envelope.
