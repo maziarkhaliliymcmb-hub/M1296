@@ -8,7 +8,7 @@ Weights and confidence are bounded metadata, not inferred truth. They must be po
 
 ## 36OS interoperability envelope
 
-When M1296 data is exposed through the 36OS genome registry contract, the registry response must include both:
+Under 36OS core interoperability contract 1.1.0, when M1296 data is exposed through the 36OS genome registry contract, the registry response must include both:
 - `root_schema_version`, equal to the M36-ROOT `standard_version` used to parse and interpret the root structure. The currently supported value is `1.0.0`.
 - `root_genome_version`, equal to the exact M36-ROOT `genome_version` used to assign the 36 node indices.
 
