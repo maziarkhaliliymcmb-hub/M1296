@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "change_id": "CHG-20261128-019",
+  "date": "2026-11-28",
+  "actor": {
+    "id": "chatgpt",
+    "type": "assistant"
+  },
+  "summary": "Document M36 Root schema and content version pins in the M1296 interoperability envelope.",
+  "rationale": "M1296 node indices inherit meaning from a particular M36 schema and root content release; both lineage dimensions must be explicit.",
+  "goal_ids": [
+    "G-002",
+    "G-009",
+    "G-011"
+  ],
+  "decision_ids": [
+    "D-003",
+    "D-013",
+    "D-014",
+    "D-016"
+  ],
+  "risk": "low",
+  "approval_status": "owner_approved_contract_documentation",
+  "touched_files": [
+    "M1296_SPEC.md"
+  ],
+  "verification": [
+    "Require root_schema_version to match M36-ROOT standard_version.",
+    "Require root_genome_version to match M36-ROOT genome_version.",
+    "Keep M1296 standard version independent from both M36 version domains."
+  ],
+  "notes": "Documents core interoperability contract 1.1.0. No graph runtime or Root Genome data is changed."
+}
