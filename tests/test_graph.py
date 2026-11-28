@@ -46,7 +46,7 @@ def test_rejects_non_integer_node_indices(bad_index):
         Edge(bad_index, 2, EdgeType.INFLUENCE)
 
 
-@pytest.mark.parametrize("bad_number", [True, float("nan"), float("inf"), "0.5"])
+@pytest.mark.parametrize("bad_number", [True, float("nan"), float("inf"), "0.5", 10**400])
 def test_rejects_boolean_and_non_finite_edge_numbers(bad_number):
     with pytest.raises(ValueError):
         Edge(1, 2, EdgeType.INFLUENCE, bad_number, 0.9)
