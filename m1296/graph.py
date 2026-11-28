@@ -90,7 +90,10 @@ class M1296Graph:
         _require_node(source, "source")
         if type(active_only) is not bool:
             raise ValueError("active_only must be a boolean")
-        return tuple(e for e in self._edges.values() if e.source == source and (e.active or not active_only))
+        return tuple(sorted(
+            (e for e in self._edges.values() if e.source == source and (e.active or not active_only)),
+            key=lambda edge: edge.target,
+        ))
 
     def impacted_nodes(self, source: int, max_depth: int | None = None) -> tuple[int, ...]:
         """Return nodes reachable downstream, excluding the source itself."""
