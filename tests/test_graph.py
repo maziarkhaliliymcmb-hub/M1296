@@ -59,3 +59,9 @@ def test_rejects_invalid_edge_metadata_and_depth():
         Edge(1, 2, EdgeType.INFLUENCE, active=1)
     with pytest.raises(ValueError):
         M1296Graph().impacted_nodes(1, max_depth=True)
+
+def test_impact_order_is_deterministic_regardless_of_insertion_order():
+    graph = M1296Graph()
+    graph.set_edge(Edge(0, 3, EdgeType.INFLUENCE))
+    graph.set_edge(Edge(0, 1, EdgeType.INFLUENCE))
+    assert graph.impacted_nodes(0) == (1, 3)
