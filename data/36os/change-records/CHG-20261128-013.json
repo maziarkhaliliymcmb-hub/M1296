@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "change_id": "CHG-20261128-013",
+  "date": "2026-11-28",
+  "actor": {
+    "id": "chatgpt",
+    "type": "assistant"
+  },
+  "summary": "Document exact M36 root-version pinning in the M1296 interoperability envelope.",
+  "rationale": "M1296 indices derive meaning from the ordered M36 root genome; the registry envelope must make that lineage explicit.",
+  "goal_ids": [
+    "G-002",
+    "G-009",
+    "G-011"
+  ],
+  "decision_ids": [
+    "D-003",
+    "D-013",
+    "D-014"
+  ],
+  "risk": "low",
+  "approval_status": "owner_authorized_documentation",
+  "touched_files": [
+    "M1296_SPEC.md"
+  ],
+  "verification": [
+    "Ensure M1296 root_genome_version equals the pinned M36-ROOT genome_version.",
+    "Keep M1296 standard version independent from M36 root content version.",
+    "No graph runtime behavior or Root Genome data is changed."
+  ],
+  "notes": "Canonical governance record to be mirrored in 36OS-database."
+}
